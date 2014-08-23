@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# provoke-worker - Execute provoke task workers
+#
+# chkconfig: - 85 15
+# description: Execute RSE Provisioning task workers
+# processname: provoke-worker
+
+# author: Ian Good
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+DESC=rseprov-worker
+WORKER_BIN=/usr/bin/rseprov-worker
+DAEMON_OPTS=""
+
+[ -f /etc/sysconfig/rseprov-worker ] && . /etc/sysconfig/rseprov-worker
+
+lockfile=/var/lock/subsys/rseprov-worker
+
+start () {
+    echo -n "Starting $DESC: "
+    daemon $WORKER_BIN $DAEMON_OPTS
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop () {
+    echo -n "Stopping $DESC: "
+    killproc $WORKER_BIN
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+rh_status () {
+    status $WORKER_BIN
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        rh_status_q && stop
+        start
+        ;;
+    status)
+        rh_status
+        ;;
+    *)  
+        echo "Usage: $0 {start|stop|restart|status}" >&2
+        exit 2
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,109 @@
+#!/bin/bash
+
+# provoke-api - Use uwsgi to run python and wsgi web apps.
+#
+# chkconfig: - 85 15
+# description: Use uwsgi to run python and wsgi web apps.
+# processname: uwsgi
+
+# author: Ian Good
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+SERVICE_NAME=$(basename $0)
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+# These variables may be overwritten by the sysconfig file.
+UWSGI_BIN=/usr/bin/uwsgi
+PID_FILE=/var/run/uwsgi.pid
+LOG_FILE=/var/run/uwsgi.log
+DAEMON_OPTS="-s 127.0.0.1:9001"
+
+[ -f /etc/default/$SERVICE_NAME ] && . /etc/default/$SERVICE_NAME
+
+start () {
+    echo -n "Starting $SERVICE_NAME: "
+    $UWSGI_BIN --vacuum --pidfile $PID_FILE \
+               --logto $LOG_FILE \
+               --daemonize2 $LOG_FILE \
+               $DAEMON_OPTS > /dev/null 2>&1
+    retval=$?
+    [ $retval -eq 0 ] && success || failure
+    echo
+    return $retval
+}
+
+stop () {
+    echo -n "Stopping $SERVICE_NAME: "
+    $UWSGI_BIN --stop $PID_FILE > /dev/null 2>&1
+    retval=$?
+    if [ $retval -ne 0 ]; then
+        failure; echo
+        return $retval
+    fi
+    while [ 1 -eq 1 ]; do
+        rh_status_q || break
+        echo -n '.'
+        sleep 1
+    done
+    success; echo
+    return $retval
+}
+
+reload () {
+    echo -n "Reloading $SERVICE_NAME: "
+    $UWSGI_BIN --reload $PID_FILE
+    retval=$?
+    [ $retval -eq 0 ] && success || failure
+    echo
+    return $retval
+}
+
+force-reload () {
+    echo -n "Reloading $SERVICE_NAME: "
+    killproc -p $PID_FILE $UWSGI_BIN -TERM
+    retval=$?
+    [ $retval -eq 0 ] && success || failure
+    echo
+}
+
+restart () {
+    stop
+    start
+}
+
+rh_status () {
+    status -p $PID_FILE $UWSGI_BIN
+}
+
+rh_status_q() {
+    rh_status > /dev/null 2>&1
+}
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart|force-reload)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 0
+        $1
+        ;;
+    status)
+        rh_status
+        ;;
+    *)  
+        echo "Usage: $0 {start|stop|restart|reload|force-reload|status}" >&2
+        exit 2
+        ;;
+esac
+
+exit 0

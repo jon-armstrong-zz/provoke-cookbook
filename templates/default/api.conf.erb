@@ -1,0 +1,8 @@
+
+[uwsgi]
+  wsgi = '<%= @app %>'
+
+<% @uwsgi_config.sort.each do |key, val| -%>
+  <%= key %> = <%= val %>
+<% end -%>
+
