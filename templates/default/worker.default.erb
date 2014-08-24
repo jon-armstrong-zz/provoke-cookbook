@@ -1,3 +1,5 @@
 
-DAEMON_OPTS="--daemon --config-dir <%= @config_file %>"
+CONFIG_FILE="<%= @config_file %>"
+
+DAEMON_OPTS="--daemon --config-dir $CONFIG_FILE"
 

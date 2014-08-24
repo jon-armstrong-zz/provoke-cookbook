@@ -23,7 +23,7 @@
 
 default['provoke'].tap do |provoke|
 
-  provoke['uwsgi-defaults`'].tap do |uwsgi|
+  provoke['uwsgi-defaults'].tap do |uwsgi|
     uwsgi['master'] = true
     uwsgi['master-as-root'] = true
     uwsgi['buffer-size'] = 32768
