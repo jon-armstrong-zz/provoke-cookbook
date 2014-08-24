@@ -1,0 +1,11 @@
+
+CONFIG_FILE="<%= @config_file %>"
+<% if @uwsgi_config.has_key?('pidfile') -%>
+PID_FILE="<%= @uwsgi_config['pidfile'] %>"
+<% end -%>
+<% if @uwsgi_config.has_key?('logfile') -%>
+LOG_FILE="<%= @uwsgi_config['logfile'] %>"
+<% end -%>
+
+DAEMON_OPTS="--ini $CONFIG_FILE"
+

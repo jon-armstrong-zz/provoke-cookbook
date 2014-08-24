@@ -1,8 +1,8 @@
 
-[uwsgi]
-  wsgi = <%= @app %>
+[daemon]
+  app = <%= @app %>
 
-<% @uwsgi_config.sort.each do |key, val| -%>
+<% @daemon_config.sort.each do |key, val| -%>
   <%= key %> = <%= val %>
 <% end -%>
 

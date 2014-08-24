@@ -23,11 +23,6 @@
 
 default['provoke'].tap do |provoke|
 
-  provoke['install-python-packages'] = true
-
-  provoke['default-amqp-timeout'] = 10
-  provoke['default-mysql-timeout'] = 10
-
   provoke['uwsgi-defaults`'].tap do |uwsgi|
     uwsgi['master'] = true
     uwsgi['master-as-root'] = true
@@ -39,6 +34,15 @@ default['provoke'].tap do |provoke|
 
   provoke['worker-defaults'].tap do |worker|
     worker['max-fd'] = 65535
+  end
+
+  provoke['amqp-defaults'].tap do |amqp|
+    amqp['heartbeat'] = 60
+    amqp['connect_timeout'] = 30
+  end
+
+  provoke['mysql-defaults'].tap do |mysql|
+    mysql['connect_timeout'] = 30
   end
 
 end

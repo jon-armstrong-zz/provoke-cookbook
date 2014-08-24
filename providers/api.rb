@@ -36,6 +36,10 @@ action :create do
   name = new_resource.name
   service_name = new_resource.service_name || name
   etc_dir = new_resource.etc_dir || ::File.join('/etc', name)
+  log_dir = new_resource.log_dir || ::File.join('/var/log', name)
+  config_file = ::File.join(etc_dir, 'api.conf')
+  uwsgi_defaults = node['provoke']['uwsgi-defaults']
+  uwsgi_config = uwsgi_defaults.merge(new_resource.uwsgi_config)
 
   # Create the config directory.
   r_etc_dir = directory etc_dir do
@@ -43,6 +47,13 @@ action :create do
     recursive true
   end
   updated ||= r_etc_dir.updated_by_last_action?
+
+  # Create the log directory.
+  r_log_dir = directory log_dir do
+    mode 00755
+    recursive true
+  end
+  updated ||= r_log_dir.updated_by_last_action?
 
   # Create the /etc/init.d script.
   r_init = cookbook_file ::File.join('/etc/init.d', service_name) do
@@ -65,23 +76,14 @@ action :create do
     source 'api.default.erb'
     mode 00644
     variables({
-      :etc_dir => etc_dir,
+      :uwsgi_config => uwsgi_config,
+      :config_file => config_file,
     })
     action :create
   end
 
-  # Create the service resource.
-  r_service = service service_name do
-    supports :status => true, :start => true, :stop => true,
-      :restart => true, :reload => true
-    action :nothing
-  end
-  updated ||= r_service.updated_by_last_action?
-
   # Create the API/uWSGI config file.
-  uwsgi_defaults = node['provoke']['uwsgi-defaults']
-  uwsgi_config = uwsgi_defaults.merge(new_resource.uwsgi_config)
-  r_api = template ::File.join(etc_dir, 'api.conf') do
+  r_api = template config_file do
     cookbook new_resource.cookbook
     source 'api.conf.erb'
     mode 00644
@@ -93,28 +95,8 @@ action :create do
       :taskgroups => new_resource.taskgroups,
     })
     action :create
-    notifies :restart, "service[#{ service_name }]"
   end
   updated ||= r_api.updated_by_last_action?
-
-  # Install Python packages with pip, if desired.
-  if node['provoke']['install-python-packages']
-    packages = ['provoke[api]', 'uwsgi']
-    if new_resource.mysql
-      packages.push('provoke[mysql]')
-    end
-    if new_resource.amqp
-      packages.push('provoke[amqp]')
-    end
-
-    packages.each do |pkg|
-      r_pkg = python_pip pkg do
-        action :upgrade
-        notifies :restart, "service[#{ service_name }]"
-      end
-      updated ||= r_pkg.updated_by_last_action?
-    end
-  end
 
   new_resource.updated_by_last_action(updated)
 end
