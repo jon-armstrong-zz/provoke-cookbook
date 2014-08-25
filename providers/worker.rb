@@ -80,7 +80,7 @@ action :create do
     source 'worker.conf.erb'
     mode 00644
     variables({
-      :app => new_resource.app,
+      :master => new_resource.master,
       :daemon_config => worker_config,
       :amqp => new_resource.amqp,
       :mysql => new_resource.mysql,

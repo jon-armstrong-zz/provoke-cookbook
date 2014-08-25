@@ -34,7 +34,7 @@ attribute :etc_dir, :kind_of => String
 attribute :log_dir, :kind_of => String
 attribute :cookbook, :kind_of => String
 
-attribute :app, :kind_of => String, :required => true
+attribute :master, :kind_of => String, :required => true
 attribute :worker_config, :kind_of => [Hash, NilClass], :default => nil
 attribute :amqp, :kind_of => [Hash, NilClass], :default => nil
 attribute :mysql, :kind_of => [Hash, NilClass], :default => nil
