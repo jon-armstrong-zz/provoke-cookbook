@@ -35,7 +35,7 @@ attribute :log_dir, :kind_of => String
 attribute :cookbook, :kind_of => String
 
 attribute :app, :kind_of => String, :required => true
-attribute :uwsgi_config, :kind_of => [Hash, NilClass], :default => nil
+attribute :uwsgi_config, :kind_of => Hash, :default => {}
 attribute :amqp, :kind_of => [Hash, NilClass], :default => nil
 attribute :mysql, :kind_of => [Hash, NilClass], :default => nil
 attribute :taskgroups, :kind_of => [Hash, NilClass], :default => nil
