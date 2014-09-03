@@ -32,7 +32,7 @@ attribute :name, :name_attribute => true, :kind_of => String, :required => true
 attribute :service_name, :kind_of => String
 attribute :etc_dir, :kind_of => String
 attribute :log_dir, :kind_of => String
-attribute :cookbook, :kind_of => String
+attribute :cookbook, :kind_of => String, :default => 'provoke'
 
 attribute :app, :kind_of => String, :required => true
 attribute :uwsgi_config, :kind_of => Hash, :default => {}
