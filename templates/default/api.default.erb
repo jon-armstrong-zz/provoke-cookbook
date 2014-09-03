@@ -7,5 +7,5 @@ PID_FILE="<%= @uwsgi_config['pidfile'] %>"
 LOG_FILE="<%= @uwsgi_config['logfile'] %>"
 <% end -%>
 
-DAEMON_OPTS="--ini $CONFIG_FILE"
+DAEMON_OPTS="$DAEMON_OPTS --ini $CONFIG_FILE"
 
